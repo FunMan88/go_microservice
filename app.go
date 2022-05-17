@@ -152,11 +152,44 @@ func (a *App) deleteProduct(w http.ResponseWriter, r *http.Request) {
     respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
 
+/*
+My own methods
+*/
+func (a *App) getProductByName(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	name := vars["name"]
+
+	p := product{Name: name}
+	if err := p.getProductByName(a.DB); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			respondWithError(w, http.StatusNotFound, "No product found with the given name")
+		default:
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, p)
+}
+
+func (a *App) deleteAllProducts(w http.ResponseWriter, r *http.Request) {
+	if err := deleteAllProducts(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+}
 
 func (a *App) initializeRoutes() {
-    a.Router.HandleFunc("/products", a.getProducts).Methods("GET")
-    a.Router.HandleFunc("/product", a.createProduct).Methods("POST")
-    a.Router.HandleFunc("/product/{id:[0-9]+}", a.getProduct).Methods("GET")
-    a.Router.HandleFunc("/product/{id:[0-9]+}", a.updateProduct).Methods("PUT")
-    a.Router.HandleFunc("/product/{id:[0-9]+}", a.deleteProduct).Methods("DELETE")
+	a.Router.HandleFunc("/products", a.getProducts).Methods("GET")
+	a.Router.HandleFunc("/product", a.createProduct).Methods("POST")
+	a.Router.HandleFunc("/product/{id:[0-9]+}", a.getProduct).Methods("GET")
+	a.Router.HandleFunc("/product/{id:[0-9]+}", a.updateProduct).Methods("PUT")
+	a.Router.HandleFunc("/product/{id:[0-9]+}", a.deleteProduct).Methods("DELETE")
+
+	//new functions
+	a.Router.HandleFunc("/product/name/{name}", a.getProductByName).Methods("GET")
+	a.Router.HandleFunc("/products", a.deleteAllProducts).Methods("DELETE")
 }
