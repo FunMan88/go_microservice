@@ -193,5 +193,3 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/product/name/{name}", a.getProductByName).Methods("GET")
 	a.Router.HandleFunc("/products", a.deleteAllProducts).Methods("DELETE")
 }
-
-# code change to trigger travis
