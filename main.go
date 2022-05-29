@@ -2,6 +2,7 @@ package main
 
 import "os"
 
+# main method
 func main() {
 	a := App{}
 	a.Initialize(
